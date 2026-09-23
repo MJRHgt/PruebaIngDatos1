@@ -93,19 +93,43 @@ GROUP BY TipoError;
 
 """
 df_q3_res = pd.read_sql_query(query_3, conexion)
-print(df_q3_res.to_string(index=False))
-'''
+#print(df_q3_res.to_string(index=False))
+
+print("\n---> Ejecutando Query 3")
 #4 ejercicio
+
 query_4 = """
 
-
-SELECT cc.Sucursal, cc.EtapaCredito
-FROM CarteraClientes cc
-limit 3
+WITH TotalesSucursal AS (
+    SELECT 
+        Sucursal,
+        COUNT(DISTINCT ClienteID) AS TotalClientesSucursal
+    FROM CarteraClientes
+    GROUP BY Sucursal
+)
+SELECT 
+    c.Sucursal,
+    c.SegmentoEdad,
+    c.Sexo,
+    COUNT(DISTINCT c.ClienteID) AS TotalClientes,
+    ROUND(AVG(c.Monto), 2) AS MontoPromedio,
+    ROUND((COUNT(DISTINCT c.ClienteID) * 100.0) / t.TotalClientesSucursal, 2) AS PorcentajeClientesSucursal
+FROM CarteraClientes c
+JOIN TotalesSucursal t ON c.Sucursal = t.Sucursal
+GROUP BY c.Sucursal, c.SegmentoEdad, c.Sexo;
+--Se podria crear un cursor
 
 """
 df_q4 = pd.read_sql_query(query_4, conexion)
-print(df_q4.to_string(index=False))
+#print(df_q4.to_string(index=False))
 
-'''
+print("\n---> Ejecutando Query Bonus")
+
+query_5 = """ 
+
+
+
+"""
+df_q5 = pd.read_sql_query(query_4, conexion)
+print(df_q5.to_string(index=False))
 conexion.close()
