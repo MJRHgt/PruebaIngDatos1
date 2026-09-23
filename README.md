@@ -15,6 +15,6 @@
 
 ## Requisitos de Ejecución
 
-1. **Python 3.x**
+1. **Python**
 2. Librería **Pandas**: `pip install pandas`
 3. Motor **SQLite3** (incluido nativamente en Python)
