@@ -33,7 +33,7 @@ GROUP BY c.Sucursal, c.EtapaCredito;
 df_q1 = pd.read_sql_query(query_1, conexion)
 #print(df_q1.to_string(index=False))
 
-print("---> Ejecutando Query 2")
+print("\n---> Ejecutando Query 2")
 #2 ejercicio
 query_2 = """
 
@@ -57,20 +57,44 @@ WHERE (
 """
 df_q2 = pd.read_sql_query(query_2, conexion)
 #print(df_q2.to_string(index=False))
+print("\n---> Ejecutando Query 3")
 
-'''
 #3 ejercicio
 query_3 = """
 
 
-SELECT cc.Sucursal, cc.EtapaCredito
-FROM CarteraClientes cc
-limit 3
+--SELECT ClienteID, 'Monto menor o igual a 0' AS TipoError FROM CarteraClientes WHERE Monto <= 0 LIMIT 3;-- No hay
+--SELECT ClienteID, 'Días de atraso negativo' AS TipoError FROM CarteraClientes WHERE DiasAtraso < 0 LIMIT 3;-- Confirmo 35 y 40 ID
+--SELECT ClienteID, 'Fecha actualización futura' AS TipoError FROM CarteraClientes WHERE UltimaActualizacion > CURRENT_TIMESTAMP LIMIT 3;-- no hay
+
+WITH Inconsistencias AS (
+    SELECT ClienteID, 'Monto menor o igual a 0' AS TipoError 
+    FROM CarteraClientes 
+    WHERE Monto <= 0
+    
+    UNION ALL
+    
+    SELECT ClienteID, 'Días de atraso negativo' AS TipoError 
+    FROM CarteraClientes 
+    WHERE DiasAtraso < 0
+    
+    UNION ALL
+    
+    SELECT ClienteID, 'Fecha actualización futura' AS TipoError 
+    FROM CarteraClientes 
+    WHERE UltimaActualizacion > CURRENT_TIMESTAMP
+)
+SELECT 
+    TipoError, 
+    COUNT(ClienteID) AS Cantidad
+FROM Inconsistencias
+GROUP BY TipoError;
+
 
 """
 df_q3_res = pd.read_sql_query(query_3, conexion)
 print(df_q3_res.to_string(index=False))
-
+'''
 #4 ejercicio
 query_4 = """
 
