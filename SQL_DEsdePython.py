@@ -31,7 +31,8 @@ GROUP BY c.Sucursal, c.EtapaCredito;
 
 """
 df_q1 = pd.read_sql_query(query_1, conexion)
-#print(df_q1.to_string(index=False))
+print(df_q1.to_string(index=False))
+df_q1.to_csv('1_Query.csv', index=False)
 
 print("\n---> Ejecutando Query 2")
 #2 ejercicio
@@ -56,7 +57,9 @@ WHERE (
 ;
 """
 df_q2 = pd.read_sql_query(query_2, conexion)
-#print(df_q2.to_string(index=False))
+print(df_q2.to_string(index=False))
+df_q2.to_csv('2_Query.csv', index=False)
+
 print("\n---> Ejecutando Query 3")
 
 #3 ejercicio
@@ -92,10 +95,12 @@ GROUP BY TipoError;
 
 
 """
-df_q3_res = pd.read_sql_query(query_3, conexion)
-#print(df_q3_res.to_string(index=False))
+df_q3 = pd.read_sql_query(query_3, conexion)
+print(df_q3.to_string(index=False))
+df_q3.to_csv('3_Query.csv', index=False)
 
-print("\n---> Ejecutando Query 3")
+
+print("\n---> Ejecutando Query 4")
 #4 ejercicio
 
 query_4 = """
@@ -121,15 +126,42 @@ GROUP BY c.Sucursal, c.SegmentoEdad, c.Sexo;
 
 """
 df_q4 = pd.read_sql_query(query_4, conexion)
-#print(df_q4.to_string(index=False))
+print(df_q4.to_string(index=False))
+df_q4.to_csv('4_Query.csv', index=False)
 
 print("\n---> Ejecutando Query Bonus")
 
 query_5 = """ 
 
-
+WITH ClasificacionRiesgo AS (
+    SELECT 
+        ClienteID,
+        Sucursal,
+        Monto,
+        --REgla de riesgos
+        CASE 
+            WHEN DiasAtraso > 60 OR EtapaCredito = '61_90D' THEN 'Alta'
+            WHEN EtapaCredito IN ('31_60D', '1_30D') THEN 'Media'
+            WHEN EtapaCredito = '0SANA' THEN 'Baja'
+            ELSE 'Desconocido'
+        END AS NivelRiesgo
+    FROM CarteraClientes
+)
+SELECT 
+    Sucursal,
+    NivelRiesgo,
+    COUNT(ClienteID) AS TotalClientes,
+    SUM(Monto) AS MontoTotal
+    --,
+    --DENSE_RANK() OVER (PARTITION BY Sucursal ORDER BY COUNT(ClienteID) DESC) AS RankingRiesgoEnSucursal 
+    -- Rank complicado particionando por #clientes; no me ha funcionado supongo por la versi´on de SQL
+FROM ClasificacionRiesgo
+GROUP BY Sucursal, NivelRiesgo;
 
 """
-df_q5 = pd.read_sql_query(query_4, conexion)
+df_q5 = pd.read_sql_query(query_5, conexion)
 print(df_q5.to_string(index=False))
-conexion.close()
+df_q5.to_csv('5_Query.csv', index=False)
+
+conexion.close() #cerrar conexion
+print("\nProceso finalizado. Todos los archivos CSV están listos.")
