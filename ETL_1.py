@@ -43,3 +43,17 @@ df_final = df_leftJoin[columnas_finales]
 #Revision
 print("\nVista previa de la tabla transformada:")
 print(df_final.head().to_string(index=False))
+
+#Carga de Datos
+archivo_salida = 'Resultado_ETL_Clientes.csv'
+df_final.to_csv(archivo_salida, index=False)
+print(f"\nArchivo exportado exitosamente: {archivo_salida}")
+
+print("\nCreando base_prueba_v2.db con las 4 tablas...")
+conexion = sqlite3.connect('base_prueba_v2.db')
+
+#Nueva tabla en V2 de base de datos, para saber o insertar en un motor real, no pude en local, para no modificar la v1, pese a usar git
+df_final.to_sql('ClientesTransformado', conexion, if_exists='replace', index=False)
+
+conexion.close()
+print("Base de datos 'base_prueba_v2.db' ")
