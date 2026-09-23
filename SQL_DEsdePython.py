@@ -4,6 +4,7 @@ import pandas as pd
 # Conectar a la base de datos local
 conexion = sqlite3.connect('base_prueba.db')
 
+print("---> Ejecutando Query 1")
 #1 ejercicio
 query_1 = """
 
@@ -30,20 +31,32 @@ GROUP BY c.Sucursal, c.EtapaCredito;
 
 """
 df_q1 = pd.read_sql_query(query_1, conexion)
-print(df_q1.to_string(index=False))
+#print(df_q1.to_string(index=False))
 
-
+print("---> Ejecutando Query 2")
 #2 ejercicio
 query_2 = """
 
 
-SELECT cc.Sucursal, cc.EtapaCredito
-FROM CarteraClientes cc
-limit 3
-
+SELECT 
+    ClienteID,
+    NombreCliente,
+    SegmentoEdad AS EdadEstimada,
+    Monto,
+    EtapaCredito,
+    DiasAtraso
+FROM CarteraClientes
+--Se soluciona tema de 2 o mas, con case para ir sumando
+WHERE (
+    (CASE WHEN DiasAtraso > 60 THEN 1 ELSE 0 END) + -- dias de atraso
+    (CASE WHEN EtapaCredito IN ('61_90D', '31_60D') THEN 1 ELSE 0 END) + --segmento de mora o etapa de credio
+    (CASE WHEN SegmentoEdad = '18-25' THEN 1 ELSE 0 END) -- segmento de edad
+) >= 2 --validacion de 2 o mas
+--limit 3 --verificacion; con id 9 y 13 cumplen
+;
 """
 df_q2 = pd.read_sql_query(query_2, conexion)
-print(df_q2.to_string(index=False))
+#print(df_q2.to_string(index=False))
 
 '''
 #3 ejercicio
